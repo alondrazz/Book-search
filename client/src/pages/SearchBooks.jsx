@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { SAVE_BOOK } from '../schemas/typeDefs';
 import {
   Container,
   Col,
@@ -71,13 +72,23 @@ const SearchBooks = () => {
       return false;
     }
 
-    try {
-      const response = await saveBook(bookToSave, token);
+    const [saveBook, { error }] = useMutation(SAVE_BOOK);
 
-      if (!response.ok) {
+    try {
+      const { data } = await saveBook({
+        variables: {
+          authors: bookToSave.authors,
+          description: bookToSave.description,
+          title: bookToSave.title,
+          bookId: bookToSave.bookId,
+          image: bookToSave.image,
+          link: bookToSave.link,
+        },
+      });
+
+      if (error) {
         throw new Error('something went wrong!');
       }
-
       // if book successfully saves to user's account, save book id to state
       setSavedBookIds([...savedBookIds, bookToSave.bookId]);
     } catch (err) {
